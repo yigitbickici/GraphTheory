@@ -91,15 +91,24 @@ int main() {
     const string filename = "graph.txt";
     const string path_file = "path.txt";
     const string dot_file = "graph.dot";
+    bool generateRandom = true;  // Set this to false to only read from file
+    
+    int numVertices = 10;  // Default number of vertices
+    int numEdges = 20;     // Default number of edges
+    vector<pair<int, pair<int, int>>> edges;
 
-    // Generate random graph
-    int numVertices = 10; 
-    int numEdges = 20;    
-    auto edges = generateRandomGraph(numVertices, numEdges);
-    writeGraphToFile(edges, filename);
+    if (generateRandom) {
+        // Generate random graph
+        edges = generateRandomGraph(numVertices, numEdges);
+        writeGraphToFile(edges, filename);
+    }
 
     // Read graph from file
     edges = readGraphFromFile(filename);
+    numVertices = 0;  // Calculate actual number of vertices from edges
+    for (const auto& edge : edges) {
+        numVertices = max(numVertices, max(edge.second.first, edge.second.second) + 1);
+    }
 
     // Graph nodes
     vector<GraphNode> nodes(numVertices);
