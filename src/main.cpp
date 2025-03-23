@@ -158,16 +158,16 @@ int main() {
         total_duration_ucs += duration_ucs.count();
 
         cout << "A* Runtime: " << duration_astar.count() << " microseconds" << endl;
-        cout << "UCS Runtime: " << duration_ucs.count() << " microseconds" << endl;
+        cout << "Dijkstra Runtime: " << duration_ucs.count() << " microseconds" << endl;
 
         if (run == 0) {
             cout << "\nShortest Path (A*): " << result_astar.path << endl;
             cout << "Total Cost (A*): " << result_astar.cost << endl;
-            cout << "\nShortest Path (UCS): " << result_ucs.path << endl;
-            cout << "Total Cost (UCS): " << result_ucs.cost << endl;
+            cout << "\nShortest Path (Dijkstra): " << result_ucs.path << endl;
+            cout << "Total Cost (Dijkstra): " << result_ucs.cost << endl;
         }
 
-        // İlk çalıştırmada bulunan yolu kaydet ve görselleştir
+        
         if (run == 0) {
             if (result_astar.path != "NO SOLUTION") {
                 writePath(result_astar.path, "astar_" + path_file);
