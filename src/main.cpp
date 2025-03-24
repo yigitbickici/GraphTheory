@@ -102,7 +102,7 @@ int main() {
     const string dot_file = "graph.dot";
     bool generateRandom = true;  // Set this to false to only read from file
     
-    int numVertices = 10;
+    int numVertices = 20;
     int numEdges = 35;     // Daha fazla kenar ekleyelim
     vector<pair<int, pair<int, int>>> edges;
 
