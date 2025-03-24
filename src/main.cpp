@@ -87,14 +87,23 @@ void writePath(const string& path, const string& filename) {
     file.close();
 }
 
+// Graphviz PNG oluşturma fonksiyonu
+void generatePNG(const string& dot_file, const string& algorithm_name) {
+    string timestamp = to_string(chrono::system_clock::now().time_since_epoch().count());
+    string output_file = algorithm_name + "_path_" + timestamp;
+    string command = "dot -Tpng " + dot_file + " -o " + output_file + ".png";
+    system(command.c_str());
+    cout << algorithm_name << " için görselleştirme oluşturuldu: " << output_file << ".png" << endl;
+}
+
 int main() {
     const string filename = "graph.txt";
     const string path_file = "path.txt";
     const string dot_file = "graph.dot";
     bool generateRandom = true;  // Set this to false to only read from file
     
-    int numVertices = 10;  // Default number of vertices
-    int numEdges = 20;     // Default number of edges
+    int numVertices = 10;
+    int numEdges = 35;     // Daha fazla kenar ekleyelim
     vector<pair<int, pair<int, int>>> edges;
 
     if (generateRandom) {
@@ -138,7 +147,7 @@ int main() {
         cout << "h(" << i << ") = " << heuristic[to_string(i)] << endl;
     }
 
-    const int NUM_RUNS = 5;
+    const int NUM_RUNS = 1;
     long long total_duration_astar = 0;
     long long total_duration_ucs = 0;
 
@@ -172,10 +181,12 @@ int main() {
             if (result_astar.path != "NO SOLUTION") {
                 writePath(result_astar.path, "astar_" + path_file);
                 generateDotFile(edges, result_astar.path, "astar_" + dot_file);
+                generatePNG("astar_" + dot_file, "AStar");
             }
             if (result_ucs.path != "NO SOLUTION") {
                 writePath(result_ucs.path, "ucs_" + path_file);
                 generateDotFile(edges, result_ucs.path, "ucs_" + dot_file);
+                generatePNG("ucs_" + dot_file, "UCS");
             }
         }
     }

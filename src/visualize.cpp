@@ -4,53 +4,49 @@
 
 using namespace std;
 
-void generateDotFile(const vector<pair<int, pair<int, int>>>& edges, 
-                    const string& path,
-                    const string& outputFile) {
-    ofstream file(outputFile);
+void generateDotFile(const vector<pair<int, pair<int, int>>>& edges, const string& path, const string& filename) {
+    ofstream file(filename);
     
-    // DOT dosyası başlangıcı
+    // Grafiği başlat ve görünüm ayarlarını yap
     file << "digraph G {\n";
-    file << "    node [style=filled];\n";
+    file << "    rankdir=RL;\n";
+    file << "    size=\"30,20\";\n";        // Çok daha büyük boyut
+    file << "    ratio=fill;\n";            // Belirtilen boyuta tam dolduracak şekilde ölçekle
+    file << "    node [shape=circle, fixedsize=true, width=1];\n";  // Sabit boyutlu nodlar
     
-    // Tüm kenarları ekle
+    // Tüm kenarları gri yap
     for (const auto& edge : edges) {
-        int source = edge.second.first;
-        int target = edge.second.second;
-        int weight = edge.first;
-        
-        file << "    " << source << " -> " << target;
-        file << " [label=\"" << weight << "\"];\n";
+        file << "    " << edge.second.first << " -> " << edge.second.second 
+             << " [label=\"" << edge.first << "\", color=gray];\n";
     }
     
-    // Yolu işaretle (eğer varsa)
-    if (!path.empty()) {
-        file << "    // Highlight path nodes\n";
+    // Path'teki kenarları kırmızı yap
+    if (path != "NO SOLUTION") {
         string number;
-        vector<int> pathNodes;
+        vector<int> path_nodes;
         
-        // Parse path string
+        // Path string'ini parse et
         for (char c : path) {
             if (isdigit(c)) {
                 number += c;
             } else if (!number.empty()) {
-                pathNodes.push_back(stoi(number));
+                path_nodes.push_back(stoi(number));
                 number.clear();
             }
         }
         if (!number.empty()) {
-            pathNodes.push_back(stoi(number));
+            path_nodes.push_back(stoi(number));
         }
         
-        // Yoldaki düğümleri yeşil yap
-        for (int node : pathNodes) {
-            file << "    " << node << " [fillcolor=lightgreen];\n";
+        // Path'teki nodeları pembe yap
+        for (int node : path_nodes) {
+            file << "    " << node << " [style=filled, fillcolor=lightpink];\n";
         }
         
-        // Yoldaki kenarları kırmızı yap
-        for (size_t i = 0; i < pathNodes.size() - 1; i++) {
-            file << "    " << pathNodes[i] << " -> " << pathNodes[i+1];
-            file << " [color=red, penwidth=2.0];\n";
+        // Path'teki kenarları kırmızı yap
+        for (size_t i = 0; i < path_nodes.size() - 1; ++i) {
+            file << "    " << path_nodes[i] << " -> " << path_nodes[i + 1] 
+                 << " [color=red, penwidth=3.0];\n";  // Kenar kalınlığını artırdık
         }
     }
     
