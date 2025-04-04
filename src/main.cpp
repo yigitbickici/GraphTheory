@@ -96,88 +96,93 @@ void generatePNG(const string& dot_file, const string& algorithm_name) {
     cout << algorithm_name << " için görselleştirme oluşturuldu: " << output_file << ".png" << endl;
 }
 
+void writeResultToCSV(const string& filename, int graphId, int expandedNodes_astar, int expandedNodes_ucs) {
+    bool fileExists = ifstream(filename).good();
+    ofstream file(filename, ios::app);
+    
+    if (!fileExists) {
+        file << "graph_id,expanded_nodes_astar,expanded_nodes_ucs\n";
+    }
+    
+    file << graphId << "," << expandedNodes_astar << "," << expandedNodes_ucs << "\n";
+    file.close();
+}
+
 int main() {
     const string filename = "graph.txt";
     const string path_file = "path.txt";
     const string dot_file = "graph.dot";
-    bool generateRandom = true;  // Set this to false to only read from file
+    const string results_file = "algorithm_comparison.csv";
+    bool generateRandom = true;
     
     int numVertices = 20;
-    int numEdges = 35;     // Daha fazla kenar ekleyelim
+    int numEdges = 35;
     vector<pair<int, pair<int, int>>> edges;
-
-    if (generateRandom) {
-        // Generate random graph
-        edges = generateRandomGraph(numVertices, numEdges);
-        writeGraphToFile(edges, filename);
-    }
-
-    // Read graph from file
-    edges = readGraphFromFile(filename);
-    numVertices = 0;  // Calculate actual number of vertices from edges
-    for (const auto& edge : edges) {
-        numVertices = max(numVertices, max(edge.second.first, edge.second.second) + 1);
-    }
-
-    // Graph nodes
-    vector<GraphNode> nodes(numVertices);
-    for (int i = 0; i < numVertices; ++i) {
-        nodes[i].name = to_string(i);
-    }
-
-    // Add edges to nodes
-    for (const auto& edge : edges) {
-        nodes[edge.second.first].links.push_back({edge.first, &nodes[edge.second.second]});
-    }
-
-    cout << "Graph Structure:" << endl;
-    for (const auto& edge : edges) {
-        cout << edge.second.first << " -(" << edge.first << ")-> " << edge.second.second << endl;
-    }
-
-    // Calculate heuristic values for each node
-    unordered_map<string, unsigned int> heuristic;
-    int target = numVertices - 1;
-    for (int i = 0; i < numVertices; ++i) {
-        heuristic[to_string(i)] = calculateHeuristic(nodes, i, target);
-    }
-
-    cout << "\nHeuristic values for each node:" << endl;
-    for (int i = 0; i < numVertices; ++i) {
-        cout << "h(" << i << ") = " << heuristic[to_string(i)] << endl;
-    }
-
-    const int NUM_RUNS = 1;
-    long long total_duration_astar = 0;
-    long long total_duration_ucs = 0;
-
-    for (int run = 0; run < NUM_RUNS; run++) {
-        cout << "\nRun " << run + 1 << ":" << endl;
-        
-        auto start = chrono::high_resolution_clock::now();
-        Path result_astar = solveAstar(&nodes[0], to_string(numVertices - 1), heuristic);
-        auto end = chrono::high_resolution_clock::now();
-        auto duration_astar = chrono::duration_cast<chrono::microseconds>(end - start);
-        total_duration_astar += duration_astar.count();
-
-        start = chrono::high_resolution_clock::now();
-        Path result_ucs = solveUCS(&nodes[0], to_string(numVertices - 1));
-        end = chrono::high_resolution_clock::now();
-        auto duration_ucs = chrono::duration_cast<chrono::microseconds>(end - start);
-        total_duration_ucs += duration_ucs.count();
-
-        cout << "A* Runtime: " << duration_astar.count() << " microseconds" << endl;
-        cout << "Dijkstra Runtime: " << duration_ucs.count() << " microseconds" << endl;
-
-        if (run == 0) {
-            cout << "\nShortest Path (A*): " << result_astar.path << endl;
-            cout << "Total Cost (A*): " << result_astar.cost << endl;
-            cout << "\nShortest Path (Dijkstra): " << result_ucs.path << endl;
-            cout << "Total Cost (Dijkstra): " << result_ucs.cost << endl;
+    
+    // Test multiple graphs
+    for(int graphId = 1; graphId <= 10; graphId++) {  // Test 10 different graphs
+        if (generateRandom) {
+            edges = generateRandomGraph(numVertices, numEdges);
+            writeGraphToFile(edges, filename);
         }
 
-        
-        if (run == 0) {
+        edges = readGraphFromFile(filename);
+        numVertices = 0;
+        for (const auto& edge : edges) {
+            numVertices = max(numVertices, max(edge.second.first, edge.second.second) + 1);
+        }
+
+        vector<GraphNode> nodes(numVertices);
+        for (int i = 0; i < numVertices; ++i) {
+            nodes[i].name = to_string(i);
+        }
+
+        for (const auto& edge : edges) {
+            nodes[edge.second.first].links.push_back({edge.first, &nodes[edge.second.second]});
+        }
+
+        cout << "\nGraph Structure:" << endl;
+        for (const auto& edge : edges) {
+            cout << edge.second.first << " -(" << edge.first << ")-> " << edge.second.second << endl;
+        }
+
+        unordered_map<string, unsigned int> heuristic;
+        int target = numVertices - 1;
+        for (int i = 0; i < numVertices; ++i) {
+            heuristic[to_string(i)] = calculateHeuristic(nodes, i, target);
+        }
+
+        cout << "\nHeuristic values for each node:" << endl;
+        for (int i = 0; i < numVertices; ++i) {
+            cout << "h(" << i << ") = " << heuristic[to_string(i)] << endl;
+        }
+
+        // Variables to store expanded nodes
+        int expandedNodes_astar = 0;
+        int expandedNodes_ucs = 0;
+
+        // Run A*
+        auto start = chrono::high_resolution_clock::now();
+        Path result_astar = solveAstar(&nodes[0], to_string(numVertices - 1), heuristic, expandedNodes_astar);
+        auto end = chrono::high_resolution_clock::now();
+        auto duration_astar = chrono::duration_cast<chrono::microseconds>(end - start);
+
+        // Run UCS
+        start = chrono::high_resolution_clock::now();
+        Path result_ucs = solveUCS(&nodes[0], to_string(numVertices - 1), expandedNodes_ucs);
+        end = chrono::high_resolution_clock::now();
+        auto duration_ucs = chrono::duration_cast<chrono::microseconds>(end - start);
+
+        // Save results
+        writeResultToCSV(results_file, graphId, expandedNodes_astar, expandedNodes_ucs);
+
+        cout << "\nGraph " << graphId << " Results:" << endl;
+        cout << "A* Expanded Nodes: " << expandedNodes_astar << endl;
+        cout << "UCS Expanded Nodes: " << expandedNodes_ucs << endl;
+        cout << "A* Runtime: " << duration_astar.count() << " microseconds" << endl;
+        cout << "UCS Runtime: " << duration_ucs.count() << " microseconds" << endl;
+
+        if (graphId == 1) {  // Only generate visualizations for first graph
             if (result_astar.path != "NO SOLUTION") {
                 writePath(result_astar.path, "astar_" + path_file);
                 generateDotFile(edges, result_astar.path, "astar_" + dot_file);
@@ -190,10 +195,6 @@ int main() {
             }
         }
     }
-
-    cout << "\nAverage Runtime over " << NUM_RUNS << " runs:" << endl;
-    cout << "A* Average: " << total_duration_astar / NUM_RUNS << " microseconds" << endl;
-    cout << "UCS Average: " << total_duration_ucs / NUM_RUNS << " microseconds" << endl;
 
     return 0;
 } 

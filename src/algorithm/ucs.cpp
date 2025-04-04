@@ -12,14 +12,14 @@ struct CompareNode {
     }
 };
 
-Path solveUCS(GraphNode* graph, string goal) {
+Path solveUCS(GraphNode* graph, string goal, int& expandedNodes) {
     
 
     Path ans;
     ans.path = "NO SOLUTION";
     ans.cost = 0;
 
-    unsigned int expandedNodes = 0;
+    expandedNodes = 0;  // Initialize counter
     unordered_set<string> visited;
 
     if (graph != nullptr) {
@@ -37,7 +37,7 @@ Path solveUCS(GraphNode* graph, string goal) {
 
             if (visited.count(stateToExpand->node->name) == 0) {
                 visited.insert(stateToExpand->node->name);
-                expandedNodes++;
+                expandedNodes++;  // Increment counter
 
                 if (stateToExpand->node->name == goal) {
                     ans = stateToExpand->path;

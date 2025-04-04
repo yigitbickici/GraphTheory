@@ -30,14 +30,14 @@ struct CompareNode_Astar {
     }
 };
 
-Path solveAstar(GraphNode* graph, string goal, unordered_map<string, unsigned int>& heuristic) {
+Path solveAstar(GraphNode* graph, string goal, unordered_map<string, unsigned int>& heuristic, int& expandedNodes) {
     cout << "A* Search" << endl;
 
     Path ans;
     ans.path = "NO SOLUTION";
     ans.cost = 0;
 
-    unsigned int expandedNodes = 0;
+    expandedNodes = 0;  // Initialize counter
     unordered_set<string> visited;
 
     if (graph != nullptr) {
@@ -56,7 +56,7 @@ Path solveAstar(GraphNode* graph, string goal, unordered_map<string, unsigned in
 
             if (visited.count(stateToExpand->node->name) == 0) {
                 visited.insert(stateToExpand->node->name);
-                expandedNodes++;
+                expandedNodes++;  // Increment counter
 
                 if (stateToExpand->node->name == goal) {
                     ans = stateToExpand->path;
