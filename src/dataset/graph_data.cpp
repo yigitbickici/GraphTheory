@@ -13,11 +13,17 @@ vector<pair<int, pair<int, int>>> generateRandomGraph(int numVertices, int numEd
     random_device rd;
     mt19937 gen(rd());
     
-    // Her node için en az bir bağlantı garantile
-    for (int i = 0; i < numVertices; i++) {
-        int j = (i + 1) % numVertices;
+    // Minimum spanning tree benzeri yapı oluştur (bağlantılı graf için)
+    int initialEdges = numVertices - 1;
+    for (int i = 0; i < initialEdges && edges.size() < numEdges; i++) {
         int weight = 1 + (gen() % 20);
-        edges.push_back({weight, {i, j}});
+        edges.push_back({weight, {i, i + 1}});
+    }
+    
+    // Son düğümü ilk düğüme bağla (döngü oluştur)
+    if (edges.size() < numEdges) {
+        int weight = 1 + (gen() % 20);
+        edges.push_back({weight, {numVertices - 1, 0}});
     }
     
     // Kalan kenarları rastgele ekle
@@ -29,7 +35,8 @@ vector<pair<int, pair<int, int>>> generateRandomGraph(int numVertices, int numEd
             // Aynı kenarın tekrar eklenmesini önle
             bool exists = false;
             for (const auto& edge : edges) {
-                if (edge.second.first == i && edge.second.second == j) {
+                if ((edge.second.first == i && edge.second.second == j) ||
+                    (edge.second.first == j && edge.second.second == i)) {
                     exists = true;
                     break;
                 }
@@ -38,23 +45,8 @@ vector<pair<int, pair<int, int>>> generateRandomGraph(int numVertices, int numEd
             if (!exists) {
                 int weight = 1 + (gen() % 20); // 1-20 arası ağırlık
                 edges.push_back({weight, {i, j}});
-                
-                // Bazen çift yönlü kenar ekle (farklı ağırlıklarla)
-                if (gen() % 2 == 0) {
-                    weight = 1 + (gen() % 20); // Farklı bir ağırlık
-                    edges.push_back({weight, {j, i}});
-                }
             }
         }
-    }
-    
-    // Uzun mesafeli kısayollar ekle
-    int extraEdges = numVertices / 2;
-    for (int i = 0; i < extraEdges; i++) {
-        int start = gen() % numVertices;
-        int end = (start + 3 + (gen() % (numVertices-3))) % numVertices;
-        int weight = 1 + (gen() % 10); // Düşük ağırlıklı uzun bağlantılar
-        edges.push_back({weight, {start, end}});
     }
     
     return edges;
