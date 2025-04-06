@@ -10,17 +10,18 @@ void generateDotFile(const vector<pair<int, pair<int, int>>>& edges, const strin
     // Grafiği başlat ve görünüm ayarlarını yap
     file << "digraph G {\n";
     file << "    rankdir=RL;\n";
-    file << "    size=\"30,20\";\n";        // Çok daha büyük boyut
+    file << "    size=\"30,20\";\n";        // Büyük boyut
     file << "    ratio=fill;\n";            // Belirtilen boyuta tam dolduracak şekilde ölçekle
-    file << "    node [shape=circle, fixedsize=true, width=1];\n";  // Sabit boyutlu nodlar
+    file << "    node [shape=circle, fixedsize=true, width=1, fontsize=14];\n";  // Daha büyük node yazıları
+    file << "    edge [fontsize=14, penwidth=2.0];\n";  // Daha kalın kenarlar ve büyük yazılar
     
-    // Tüm kenarları gri yap
+    // Tüm kenarları koyu gri yap ve kalınlaştır
     for (const auto& edge : edges) {
         file << "    " << edge.second.first << " -> " << edge.second.second 
-             << " [label=\"" << edge.first << "\", color=gray];\n";
+             << " [label=\"" << edge.first << "\", color=\"#404040\", penwidth=2.0];\n";
     }
     
-    // Path'teki kenarları kırmızı yap
+    // Path'teki nodeları işaretle
     if (path != "NO SOLUTION") {
         string number;
         vector<int> path_nodes;
@@ -38,15 +39,21 @@ void generateDotFile(const vector<pair<int, pair<int, int>>>& edges, const strin
             path_nodes.push_back(stoi(number));
         }
         
-        // Path'teki nodeları pembe yap
-        for (int node : path_nodes) {
-            file << "    " << node << " [style=filled, fillcolor=lightpink];\n";
+        // Başlangıç nodunu kırmızı, hedef nodunu yeşil yap
+        if (!path_nodes.empty()) {
+            file << "    " << path_nodes.front() << " [style=filled, fillcolor=red, fontcolor=white];\n";
+            file << "    " << path_nodes.back() << " [style=filled, fillcolor=green, fontcolor=white];\n";
+            
+            // Path üzerindeki ara nodeları açık mavi yap
+            for (size_t i = 1; i < path_nodes.size() - 1; ++i) {
+                file << "    " << path_nodes[i] << " [style=filled, fillcolor=lightblue];\n";
+            }
         }
         
-        // Path'teki kenarları kırmızı yap
+        // Path'teki kenarları mavi yap ve kalınlaştır
         for (size_t i = 0; i < path_nodes.size() - 1; ++i) {
             file << "    " << path_nodes[i] << " -> " << path_nodes[i + 1] 
-                 << " [color=red, penwidth=3.0];\n";  // Kenar kalınlığını artırdık
+                 << " [color=blue, penwidth=4.0];\n";  // Daha kalın path kenarları
         }
     }
     
