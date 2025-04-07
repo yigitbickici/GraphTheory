@@ -13,12 +13,12 @@ void generateDotFile(const vector<pair<int, pair<int, int>>>& edges, const strin
     file << "    size=\"30,20\";\n";        // Büyük boyut
     file << "    ratio=fill;\n";            // Belirtilen boyuta tam dolduracak şekilde ölçekle
     file << "    node [shape=circle, fixedsize=true, width=1, fontsize=14];\n";  // Daha büyük node yazıları
-    file << "    edge [fontsize=30, penwidth=2.0];\n";  // Kenar yazılarını daha büyük yap
+    file << "    edge [fontsize=50, penwidth=3.0];\n";  // Kenar yazılarını orta boy yap ve kenarları orta kalınlıkta yap
     
     // Tüm kenarları koyu gri yap ve kalınlaştır
     for (const auto& edge : edges) {
         file << "    " << edge.second.first << " -> " << edge.second.second 
-             << " [label=\"" << edge.first << "\", color=\"#404040\", penwidth=2.0, fontsize=20];\n";
+             << " [label=\"" << edge.first << "\", color=\"#404040\", penwidth=3.0, fontsize=50];\n";
     }
     
     // Path'teki nodeları işaretle
@@ -53,7 +53,7 @@ void generateDotFile(const vector<pair<int, pair<int, int>>>& edges, const strin
         // Path'teki kenarları mavi yap ve kalınlaştır
         for (size_t i = 0; i < path_nodes.size() - 1; ++i) {
             file << "    " << path_nodes[i] << " -> " << path_nodes[i + 1] 
-                 << " [color=blue, penwidth=4.0, fontsize=20];\n";  // Path kenarlarının yazı boyutunu da artır
+                 << " [color=blue, penwidth=4.0, fontsize=50];\n";  // Path kenarlarının yazı boyutunu da orta seviyede tut
         }
     }
     

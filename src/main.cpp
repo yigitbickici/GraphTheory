@@ -159,8 +159,8 @@ int main() {
         cout << "\n=== Testing Level with " << numVertices << " vertices and " 
              << numEdges << " edges ===" << endl;
 
-        // Test 10 different graphs for each level
-        for(int localGraphId = 1; localGraphId <= 10; localGraphId++, globalGraphId++) {
+        // Test 30 different graphs for each level
+        for(int localGraphId = 1; localGraphId <= 30; localGraphId++, globalGraphId++) {
             cout << "\n--- Graph " << globalGraphId << " (Level Graph " << localGraphId << ") ---" << endl;
             
             vector<pair<int, pair<int, int>>> edges;
